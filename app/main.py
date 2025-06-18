@@ -5,7 +5,7 @@ import logging
 
 # import settings and data models
 from app.core.config import settings
-from app.db.mock_data import mock_data
+from app.db.mock_data import load_mock_data
 # from app.db.database import SessionLocal, engine, Base
 # from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
 
@@ -81,9 +81,26 @@ def read_root():
 async def startup_event():
     logger.info("Application startup event triggered.")
     create_db_tables()
+    global user_profile
+    global inbox_messages
+    global tenders
+    user_profile, inbox_messages, tenders = load_mock_data()
     logger.info("Database tables checked/created. Application ready.")
 
 
 @app.get("/api/v1/tenders")
 def get_tenders():
-    return mock_data
+    return tenders
+
+
+@app.get("/api/v1/profile")
+def get_tenders():
+    return user_profile
+
+
+@app.get("/api/v1/inbox")
+def get_tenders():
+    return inbox_messages
+
+
+
