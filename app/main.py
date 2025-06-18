@@ -33,10 +33,9 @@ app = FastAPI(
 
 # allow CORS to allow frontend request this service
 origins = [
-    "http://localhost:5173",  # default-port for Svelte-Dev-Server
+    "http://localhost:5173",
     "http://localhost:8000",
-    # TODO: add frontend url
-    # "https://your-svelte-frontend-on-vercel.vercel.app",
+    "https://biz-inno-frontend.vercel.app"
 ]
 
 app.add_middleware(
