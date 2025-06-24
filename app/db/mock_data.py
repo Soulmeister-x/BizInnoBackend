@@ -11,7 +11,7 @@ import random
 now = datetime.datetime.now()
 
 
-def generate_mock_inbox_messages(num_messages=10):
+def generate_mock_inbox_messages(num_messages=10) -> list:
   """Generates a list of mock inbox messages for a user profile focused on construction."""
 
   messages = []
@@ -39,7 +39,7 @@ def generate_mock_inbox_messages(num_messages=10):
   return messages
 
 
-def load_mock_data():
+def load_mock_data() -> tuple(dict, list, list):
     """Returns user_profile, inbox_messages, tenders"""
     tenders = [
         {
