@@ -93,12 +93,12 @@ def get_tenders():
 
 
 @app.get("/api/v1/profile")
-def get_tenders():
+def get_profile():
     return user_profile
 
 
 @app.get("/api/v1/inbox")
-def get_tenders():
+def get_inbox():
     return inbox_messages
 
 
