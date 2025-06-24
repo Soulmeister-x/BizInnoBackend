@@ -93,6 +93,7 @@ async def startup_event():
 
 @app.get("/api/v1/tenders")
 def get_tenders():
+    global tenders
     return tenders
 
 
@@ -101,9 +102,64 @@ def get_profile():
     return user_profile
 
 
+@app.delete("/api/v1/profile")
+def delete_profile():
+    global user_profile
+    user_profile = {}
+    return {"message": "Profile deleted successfully"}
+
+
+@app.post("/api/v1/profile/default")
+async def reset_default_profile():
+    global user_profile
+    user_profile, _, _ = load_mock_data()
+    return {"message": "User profile was reset to default values."}
+
+
 @app.get("/api/v1/inbox")
 def get_inbox():
+    global inbox_messages
     return inbox_messages
 
 
+@app.post("/api/v1/ingest/tenders", tags=["Ingestion", "Tenders"])
+async def ingest_tenders(type: str, data: dict):
+    logger.info("POST tender")
+    global tenders
+    # TODO: Logik für das Aktualisieren eines Angebots
+    try:
+        data = await request.json()
+        tenders.append(data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/ingest/profile", tags=["Ingestion", "Profile"])
+async def ingest_profile(type: str, data: dict):
+    logger.info("POST profile")
+    global user_profile
+    # TODO: Logik für das Aktualisieren des Benutzerprofils
+    try:
+        data = await request.json()
+        # TODO: validate the data from the form
+        # TODO: check if all required fields are present
+        # TODO: update the profile
+        user_profile.name = data.get("name", user_profile.name)
+        user_profile.email = data.get("email", user_profile.email)
+        # Add more fields as needed
+        return {"message": "Profile updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/ingest/inbox", tags=["Ingestion", "Inbox"])
+async def ingest_inbox_messages(type: str, data: dict):
+    logger.info("POST inbox")
+    global inbox_messages
+    # TODO: Logik für das Aktualisieren des Posteingangs
+    try:
+        data = await request.json()
+        inbox_messages.append()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
