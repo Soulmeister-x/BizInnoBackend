@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 # from sqlalchemy.orm import Session
 import logging
@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.db.mock_data import load_mock_data
 # from app.db.database import SessionLocal, engine, Base
 # from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
+from app.api.models import Profile
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -93,7 +94,6 @@ async def startup_event():
 
 @app.get("/api/v1/tenders")
 def get_tenders():
-    global tenders
     return tenders
 
 
@@ -118,42 +118,34 @@ async def reset_default_profile():
 
 @app.get("/api/v1/inbox")
 def get_inbox():
-    global inbox_messages
     return inbox_messages
 
 
 @app.post("/api/v1/ingest/tenders", tags=["Ingestion", "Tenders"])
-async def ingest_tenders(type: str, data: dict):
+async def ingest_tenders(data: dict):
     logger.info("POST tender")
     global tenders
     # TODO: Logik für das Aktualisieren eines Angebots
     try:
-        data = await request.json()
-        tenders.append(data)
+        return {"message": "Received POST tender", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/v1/ingest/profile", tags=["Ingestion", "Profile"])
-async def ingest_profile(type: str, data: dict):
+async def ingest_profile(data: Profile):
     logger.info("POST profile")
     global user_profile
-    # TODO: Logik für das Aktualisieren des Benutzerprofils
     try:
-        data = await request.json()
-        # TODO: validate the data from the form
-        # TODO: check if all required fields are present
-        # TODO: update the profile
-        user_profile.name = data.get("name", user_profile.name)
-        user_profile.email = data.get("email", user_profile.email)
-        # Add more fields as needed
-        return {"message": "Profile updated successfully"}
+        #user_profile.name = data.get("name", user_profile.name)
+        #user_profile.email = data.get("email", user_profile.email)
+        return {"message": "Profile updated successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/v1/ingest/inbox", tags=["Ingestion", "Inbox"])
-async def ingest_inbox_messages(type: str, data: dict):
+async def ingest_inbox_messages(data: dict):
     logger.info("POST inbox")
     global inbox_messages
     # TODO: Logik für das Aktualisieren des Posteingangs
