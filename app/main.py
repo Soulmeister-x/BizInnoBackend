@@ -32,6 +32,7 @@ def create_db_tables():
     try:
         # TODO: use after engine is defined
         # Base.metadata.create_all(bind=engine)
+        # TODO: reset DB and init with mock data
         logger.info("Database tables created or already exist.")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
@@ -99,32 +100,32 @@ async def startup_event():
     logger.info("Database tables checked/created. Application ready.")
 
 
-@app.get("/api/v1/tenders")
+@app.get("/api/v1/tenders", tags=["Tenders"])
 def get_tenders():
     return tenders
 
 
-@app.get("/api/v1/tenders/{tender_id}")
+@app.get("/api/v1/tenders/{tender_id}", tags=["Tenders"])
 def get_tender_by_id(tender_id: int):
     return find_list_entry(tenders, "id", tender_id)
 
 
-@app.get("/api/v1/profile")
+@app.get("/api/v1/profile", tags=["Profile"])
 def get_profile():
     return user_profile
 
 
-@app.get("/api/v1/inbox")
+@app.get("/api/v1/inbox", tags=["Inbox"])
 def get_inbox():
     return inbox_messages
 
 
-@app.get("/api/v1/inbox/{message_id}")
+@app.get("/api/v1/inbox/{message_id}", tags=["Inbox"])
 def get_inbox(message_id: int):
     return find_list_entry(inbox_messages, "id", message_id)
 
 
-@app.post("/api/v1/profile/{profile_id}")
+@app.post("/api/v1/profile/{profile_id}", tags=["Profile"])
 def switch_profile(profile_id: int):
     global user_profile
     try:
@@ -135,14 +136,14 @@ def switch_profile(profile_id: int):
     return {"message": msg}
 
 
-@app.delete("/api/v1/profile")
+@app.delete("/api/v1/profile", tags=["Profile"])
 def delete_profile():
     global user_profile
     user_profile = {}
     return {"message": "Profile deleted successfully"}
 
 
-@app.post("/api/v1/profile/default")
+@app.post("/api/v1/profile/default", tags=["Profile"])
 async def reset_default_profile():
     global user_profile
     user_profile, _, _ = load_mock_data()
