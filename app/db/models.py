@@ -9,7 +9,8 @@ from app.db.database import Base
 # Platzhalter-Embedding
 # Die Dimension 1536 ist hier beispielhaft für Modelle wie OpenAI's text-embedding-ada-002.
 
-PLACEHOLDER_EMBEDDING = [0.0] * 1536
+N_DIM = 1536
+PLACEHOLDER_EMBEDDING = [0.0] * N_DIM
 
 
 class ProposalStatus(str, enum.Enum):
@@ -24,9 +25,10 @@ class Unternehmen(Base):
     """
     __tablename__ = "unternehmen"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(Text)  # , zum Speichern des gehashten Passworts)
+    # , zum Speichern des gehashten Passworts)
+    hashed_password = Column(String)
     # is_active = (Boolean, z.B. fÃ¼r E-Mail-Verifizierung oder Deaktivierung des Kontos)
 
     # Company data
@@ -34,7 +36,7 @@ class Unternehmen(Base):
     description = Column(String)
     keywords = Column(String)
     branche = Column(String)
-    embedding = Column(Vector(1536))
+    embedding = Column(Vector(N_DIM))
 
     erstellt_am = Column(DateTime, server_default=func.now())
     aktualisiert_am = Column(DateTime, server_default=func.now())
@@ -44,7 +46,7 @@ class Unternehmen(Base):
 
 class Ausschreibung(Base):
     __tablename__ = "ausschreibung"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     titel = Column(String, index=True)
     beschreibung = Column(String)
     quelle_url = Column(String)
@@ -53,7 +55,7 @@ class Ausschreibung(Base):
     kategorien = Column(String)
     ort = Column(String)
     gescraped_am = Column(DateTime)
-    embedding = Column(Vector(1536))
+    embedding = Column(Vector(N_DIM))
 
     vorschlaege = relationship("Vorschlag", back_populates="ausschreibung")
 
@@ -63,9 +65,9 @@ class Vorschlag(Base):
     Stellt einen Vorschlag einer Ausschreibung für ein Unternehmen dar.
     Enthält den Matching-Score und den Status der Bewertung durch das Unternehmen.
     """
-    __tablename__ = "vorschlag"
+    __tablename__ = "vorschlaege"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     # Fremdschlüssel zu Unternehmen
     unternehmen_id = Column(Integer, ForeignKey(
@@ -77,8 +79,8 @@ class Vorschlag(Base):
     # Der berechnete Score für die Passung
     matching_score = Column(Float, nullable=False)
     # Status der Bewertung durch das Unternehmen
-    status = Column(Enum(ProposalStatus),
-                    default=ProposalStatus.PENDING, nullable=False)
+    # status = Column(String,
+    #                default=ProposalStatus.PENDING, nullable=False)
 
     # Zeitpunkt des Vorschlags
     vorgeschlagen_am = Column(DateTime, server_default=func.now())
@@ -90,7 +92,7 @@ class Vorschlag(Base):
     ausschreibung = relationship("Ausschreibung", back_populates="vorschlaege")
     # Ein Vorschlag hat maximal eine Anfrage
     anfrage = relationship(
-        "Anfrage", back_populates="vorschlag", uselist=False)
+        "Anfrage", back_populates="vorschlaege", uselist=False)
 
 
 class Anfrage(Base):
@@ -99,15 +101,15 @@ class Anfrage(Base):
     """
     __tablename__ = "anfrage"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     # Fremdschlüssel zum Vorschlag, auf dem die Anfrage basiert
     # Unique, da ein Vorschlag nur eine Anfrage haben sollte
     vorschlag_id = Column(Integer, ForeignKey(
-        "vorschlag.id"), unique=True, nullable=False)
+        "vorschlaege.id"), unique=True, nullable=False)
 
     # Der vollständige generierte Anfrage-Text
-    generierter_text = Column(Text, nullable=False)
+    generierter_text = Column(String, nullable=False)
 
     # Zeitpunkt der Generierung
     erstellt_am = Column(DateTime, server_default=func.now())
