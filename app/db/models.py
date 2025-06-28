@@ -65,13 +65,13 @@ class Vorschlag(Base):
     Stellt einen Vorschlag einer Ausschreibung für ein Unternehmen dar.
     Enthält den Matching-Score und den Status der Bewertung durch das Unternehmen.
     """
-    __tablename__ = "vorschlaege"
+    __tablename__ = "vorschlag"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     # Fremdschlüssel zu Unternehmen
     unternehmen_id = Column(Integer, ForeignKey(
-        "users.id"), index=True, nullable=False)
+        "unternehmen.id"), index=True, nullable=False)
     # Fremdschlüssel zu Ausschreibung
     ausschreibung_id = Column(Integer, ForeignKey(
         "ausschreibung.id"), index=True, nullable=False)
@@ -88,11 +88,11 @@ class Vorschlag(Base):
     ), server_default=func.now())  # Letzte Aktualisierung des Status
 
     # Beziehungen zu anderen Modellen
-    user = relationship("Unternehmen", back_populates="vorschlaege")
-    ausschreibung = relationship("Ausschreibung", back_populates="vorschlaege")
+    unternehmen = relationship("Unternehmen", back_populates="vorschlaege")
+    ausschreibung = relationship(
+        "Ausschreibung", back_populates="vorschlaege")
     # Ein Vorschlag hat maximal eine Anfrage
-    anfrage = relationship(
-        "Anfrage", back_populates="vorschlaege", uselist=False)
+    anfragen = relationship("Anfrage", back_populates="vorschlag")
 
 
 class Anfrage(Base):
@@ -106,7 +106,7 @@ class Anfrage(Base):
     # Fremdschlüssel zum Vorschlag, auf dem die Anfrage basiert
     # Unique, da ein Vorschlag nur eine Anfrage haben sollte
     vorschlag_id = Column(Integer, ForeignKey(
-        "vorschlaege.id"), unique=True, nullable=False)
+        "vorschlag.id"), unique=True, nullable=False)
 
     # Der vollständige generierte Anfrage-Text
     generierter_text = Column(String, nullable=False)
@@ -115,4 +115,4 @@ class Anfrage(Base):
     erstellt_am = Column(DateTime, server_default=func.now())
 
     # Beziehung zum Vorschlag
-    vorschlag = relationship("Vorschlag", back_populates="anfrage")
+    vorschlag = relationship("Vorschlag", back_populates="anfragen")

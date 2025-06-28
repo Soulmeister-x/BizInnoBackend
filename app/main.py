@@ -6,7 +6,7 @@ import logging
 # import settings and data models
 from app.core.config import settings
 from app.db.mock_data import load_mock_data, get_user_profiles
-from app.db.database import SessionLocal, engine, Base
+from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle
 # from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
 from app.api.models import Profile, Ausschreibung, Vorschlag, Anfrage
 
@@ -30,12 +30,13 @@ def find_list_entry(lst: list, key: str, value):
 def create_db_tables():
     logger.info("Attempting to create database tables...")
     try:
-        Base.metadata.create_all(bind=engine)
+        initialize_database(base=Base)
         # TODO: reset DB and init with mock data
         logger.info("Database tables created or already exist.")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
         # TODO: add valid error handling and potential retry methods
+        sys.exit(1)
 
 
 app = FastAPI(
