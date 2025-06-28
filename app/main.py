@@ -100,9 +100,16 @@ async def startup_event():
     logger.info("Database tables checked/created. Application ready.")
 
 
+@app.get("/api/v1/test")
+def test_db_request():
+    return {"message": test_db()}
+
+
+@app.get("/api/v1/ausschreibung")
+@app.get("/api/v1/ausschreibungen")
 @app.get("/api/v1/tenders", tags=["Tenders"])
 def get_tenders():
-    return tenders
+    return query_alle("ausschreibung")
 
 
 @app.get("/api/v1/tenders/{tender_id}", tags=["Tenders"])
@@ -110,14 +117,26 @@ def get_tender_by_id(tender_id: int):
     return find_list_entry(tenders, "id", tender_id)
 
 
+@app.get("/api/v1/company")
+@app.get("/api/v1/unternehmen")
 @app.get("/api/v1/profile", tags=["Profile"])
 def get_profile():
-    return user_profile
+    return query_alle("unternehmen")
 
 
+@app.get("/api/v1/messages")
+@app.get("/api/v1/vorschlag")
+@app.get("/api/v1/vorschlaege")
 @app.get("/api/v1/inbox", tags=["Inbox"])
 def get_inbox():
-    return inbox_messages
+    return query_alle("vorschlag")
+
+
+@app.get("/api/v1/anfrage")
+@app.get("/api/v1/anfragen")
+@app.get("/api/v1/inquiry", tags=["Anfrage"])
+def get_inquiries():
+    return query_alle("anfrage")
 
 
 @app.get("/api/v1/inbox/{message_id}", tags=["Inbox"])
