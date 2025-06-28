@@ -39,6 +39,53 @@ def generate_mock_inbox_messages(num_messages=10) -> list:
   return messages
 
 
+user_profiles = [
+    {
+        'id': 0,
+        'name': 'Einfaches Bauunternehmen',
+        'type': 'company',
+        'type_name': 'Baufirma',
+        'specialization': 'Bauarbeiten und Baukonstruktion',
+        'region': {
+            'search_type': 'radius',
+            'zipcode': '04129',
+            'city': 'Leipzig',
+            'radius': '100'
+        }
+    },
+    {
+        "id": 1,
+        "name": "Pünktliche Dienstleistungen AG",
+        "type": "company",
+        "type_name": "Personalwesen",
+        "specialization": "Personal,HR",
+        "region": {
+            "search_type": "radius",
+            "zipcode": "79639",
+            "city": "Grenzach-Wyhlen",
+            "radius": "100"
+        }
+    },
+    {
+        "id": 2,
+        "name": "Hoch und Tief GmbH",
+        "type": "company",
+        "type_name": "Baufirma",
+        "specialization": "Hochbau,Neubau,Rohbau,Aushub,Beton",
+        "region": {
+            "search_type": "radius",
+            "zipcode": "10117",
+            "city": "Berlin",
+            "radius": "100"
+        }
+    }
+]
+
+
+def get_user_profiles() -> list[dict]:
+    return user_profiles
+
+
 def load_mock_data() -> tuple[dict, list, list]:
     """Returns user_profile, inbox_messages, tenders"""
     tenders = [
@@ -164,22 +211,8 @@ def load_mock_data() -> tuple[dict, list, list]:
         }
     ]
 
-    user_profile = {
-        "id": "xxxx-xxxx",
-        "name": "My Company",
-        "type": "company",
-        "type_name": "Baufirma",
-        "specialization": "Bauarbeiten und Baukonstruktion",
-        "region": {
-            "search_type": "radius",
-            "zipcode": "04129",
-            "city": "Leipzig",
-            "radius": "100"
-        }
-    }
+    user_profile = user_profiles[0]
 
     inbox_messages = generate_mock_inbox_messages(15)
 
-
     return user_profile, inbox_messages, tenders
-
