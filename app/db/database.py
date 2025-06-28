@@ -76,19 +76,79 @@ def initialize_database(base):
         logger.error(
             f"Error during database initialization (extension or tables): {e}")
         raise
-    finally:
-        db.close()
-    """
-    with db.begin() as transaction:
-        new_unternehmen = Unternehmen(
-            id=999, name="Peter Test", email="test@domain.org")
-        transaction.add(new_unternehmen)
-        # Führe eine Abfrage aus, um alle Einträge abzurufen und auszugeben
-        alle_unternehmen = transaction.query(Unternehmen).all()
-        for u in alle_unternehmen:
-            print(u)
-        transaction.commit()
-    """
+
+
+def query_alle(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vorschlag"]):
+    db = SessionLocal()
+    with db.begin():
+        try:
+            match db_name:
+                case "ausschreibung":
+                    db_model = Ausschreibung
+                case "unternehmen":
+                    db_model = Unternehmen
+                case "anfrage":
+                    db_model = Anfrage
+                case "vorschlag":
+                    db_model = Vorschlag
+                case _:
+                    raise KeyError(f"invalid key: {db_name}")
+
+            alle = db.execute(
+                select(db_model).order_by(db_model.id)).scalars().fetchall()
+
+            match db_name:
+                case "ausschreibung":
+                    ret = [
+                        {
+                            "id": a.id,
+                            "titel": a.titel,
+                            "beschreibung": a.beschreibung,
+                            "quelle_url": a.quelle_url,
+                            "veroeffentlichungsdatum": a.veroeffentlichungsdatum,
+                            "bewerbungsfrist": a.bewerbungsfrist,
+                            "kategorien": a.kategorien,
+                            "ort": a.ort,
+                            "gescraped_am": a.gescraped_am
+                        } for a in alle
+                    ]
+                case "unternehmen":
+                    ret = [
+                        {
+                            "id": u.id,
+                            "name": u.name,
+                            "email": u.email,
+                            "description": u.description,
+                            "keywords": u.keywords,
+                            "branche": u.branche,
+                            "erstellt_am": u.erstellt_am,
+                            "aktualisiert_am": u.aktualisiert_am,
+                        } for u in alle
+                    ]
+                case "anfrage":
+                    ret = [
+                        {
+                            "id": x.id,
+                            "vorschlag_id": x.vorschlag_id,
+                            "generierter_text": x.generierter_text,
+                            "erstellt_am": x.erstellt_am,
+                        } for x in alle
+                    ]
+                case "vorschlag":
+                    ret = [
+                        {
+                            "id": x.id,
+                            "unternehmen_id": x.unternehmen_id,
+                            "ausschreibung_id": x.ausschreibung_id,
+                            "matching_score": x.matching_score,
+                            "vorgeschlagen_am": x.vorgeschlagen_am,
+                            "aktualisiert_am": x.aktualisiert_am,
+                        } for x in alle
+                    ]
+
+        except Exception as e:
+            logger.error(f"Error while trying to query all 'unternehmen': {e}")
+    return ret
 
 
 def insert_into_database():
