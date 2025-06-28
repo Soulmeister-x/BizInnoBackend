@@ -2,6 +2,7 @@
 API models, for requests and responses (e.g. input validation)
 """
 
+import enum
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
