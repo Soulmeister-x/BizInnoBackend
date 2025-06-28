@@ -5,10 +5,10 @@ import logging
 
 # import settings and data models
 from app.core.config import settings
-from app.db.mock_data import load_mock_data
-# from app.db.database import SessionLocal, engine, Base
+from app.db.mock_data import load_mock_data, get_user_profiles
+from app.db.database import SessionLocal, engine, Base
 # from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
-from app.api.models import Profile
+from app.api.models import Profile, Ausschreibung, Vorschlag, Anfrage
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -97,9 +97,35 @@ def get_tenders():
     return tenders
 
 
+@app.get("/api/v1/tenders/{tender_id}")
+def get_tender_by_id(tender_id: int):
+    return find_list_entry(tenders, "id", tender_id)
+
+
 @app.get("/api/v1/profile")
 def get_profile():
     return user_profile
+
+
+@app.get("/api/v1/inbox")
+def get_inbox():
+    return inbox_messages
+
+
+@app.get("/api/v1/inbox/{message_id}")
+def get_inbox(message_id: int):
+    return find_list_entry(inbox_messages, "id", message_id)
+
+
+@app.post("/api/v1/profile/{profile_id}")
+def switch_profile(profile_id: int):
+    global user_profile
+    try:
+        user_profile = find_list_entry(user_profiles, "id", profile_id)
+        msg = "Profile update successfully"
+    except IndexError as e:
+        msg = f"Profile update FAILED: {e}"
+    return {"message": msg}
 
 
 @app.delete("/api/v1/profile")
@@ -114,11 +140,6 @@ async def reset_default_profile():
     global user_profile
     user_profile, _, _ = load_mock_data()
     return {"message": "User profile was reset to default values."}
-
-
-@app.get("/api/v1/inbox")
-def get_inbox():
-    return inbox_messages
 
 
 @app.post("/api/v1/ingest/tenders", tags=["Ingestion", "Tenders"])
