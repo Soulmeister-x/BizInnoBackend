@@ -12,31 +12,32 @@ now = datetime.datetime.now()
 
 
 def generate_mock_inbox_messages(num_messages=10) -> list:
-  """Generates a list of mock inbox messages for a user profile focused on construction."""
+    """Generates a list of mock inbox messages for a user profile focused on construction."""
 
-  messages = []
-  for _ in range(num_messages):
-    message = {
-        "datetime": f"{random.randint(2023, 2024)}-{random.randint(1, 12)}-{random.randint(1, 28)} {random.randint(9, 23)}:",
-        "tender_id": f"{random.randint(1000, 9999)}",
-        "title": random.choice([
-            "Bau eines kleinen Bürogebäudes",
-            "Renovierung eines historischen Gebäudes",
-            "Erstellung einer Gewerbeetage",
-            "Sanierung von Wohnräumen",
-            "Neubau von einem Reihenhaus",
-            "Bau eines kleinen Gemeindezentrums",
-            "Erstellung einer Parkplatzausbau",
-            "Bau einer Sportanlage",
-            "Erstellung eines kleinen Shops",
-            "Neubau eines Wohnblocks",
-        ]),
-        "location": random.choice(["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]),
-        "summary": f"Die Ausschreibung umfasst die {random.randint(1, 10)}m² Baufläche und die Erstellung von {random.randint(1, 5)} Wohnungen. Es werden moderne Bauweisen und nachhaltige Materialien eingesetzt. Ziel ist die Erstellung eines energieeffizienten Gebäudes mit hoher Wohnqualität.  Weitere Details können im vollständigen Ausschreibungsdokument eingesehen werden.",
-        "score": round(random.uniform(7.0, 9.9), 1) #score is between 7 and 9.9
-    }
-    messages.append(message)
-  return messages
+    messages = []
+    for _ in range(num_messages):
+        message = {
+            "datetime": f"{random.randint(2023, 2024)}-{random.randint(1, 12)}-{random.randint(1, 28)} {random.randint(9, 23)}:",
+            "tender_id": f"{random.randint(1000, 9999)}",
+            "title": random.choice([
+                "Bau eines kleinen Bürogebäudes",
+                "Renovierung eines historischen Gebäudes",
+                "Erstellung einer Gewerbeetage",
+                "Sanierung von Wohnräumen",
+                "Neubau von einem Reihenhaus",
+                "Bau eines kleinen Gemeindezentrums",
+                "Erstellung einer Parkplatzausbau",
+                "Bau einer Sportanlage",
+                "Erstellung eines kleinen Shops",
+                "Neubau eines Wohnblocks",
+            ]),
+            "location": random.choice(["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"]),
+            "summary": f"Die Ausschreibung umfasst die {random.randint(1, 10)}m² Baufläche und die Erstellung von {random.randint(1, 5)} Wohnungen. Es werden moderne Bauweisen und nachhaltige Materialien eingesetzt. Ziel ist die Erstellung eines energieeffizienten Gebäudes mit hoher Wohnqualität.  Weitere Details können im vollständigen Ausschreibungsdokument eingesehen werden.",
+            # score is between 7 and 9.9
+            "score": round(random.uniform(7.0, 9.9), 1)
+        }
+        messages.append(message)
+    return messages
 
 
 user_profiles = [

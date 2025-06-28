@@ -71,18 +71,16 @@ def get_db():
 # app.include_router(ingestion.router, prefix="/api/v1/ingestion", tags=["Ingestion"])
 # TODO: replace basic routes with routers
 
-# health check
-
 
 @app.get("/api/v1/", tags=["Root"])
 def read_root():
+    # health check
     return {"message": "Willkommen zur KMU Ausschreibungsplattform API v1"}
-
-# initialize database on app start
 
 
 @app.on_event("startup")
 async def startup_event():
+    # initialize database on app start
     logger.info("Application startup event triggered.")
     create_db_tables()
     global user_profile
@@ -158,8 +156,8 @@ async def ingest_profile(data: Profile):
     logger.info("POST profile")
     global user_profile
     try:
-        #user_profile.name = data.get("name", user_profile.name)
-        #user_profile.email = data.get("email", user_profile.email)
+        # user_profile.name = data.get("name", user_profile.name)
+        # user_profile.email = data.get("email", user_profile.email)
         return {"message": "Profile updated successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -175,4 +173,3 @@ async def ingest_inbox_messages(data: dict):
         inbox_messages.append()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
