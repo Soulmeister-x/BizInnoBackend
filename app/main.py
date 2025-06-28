@@ -17,6 +17,15 @@ user_profile = {}
 inbox_messages = []
 tenders = []
 
+user_profiles = get_user_profiles()
+
+
+def find_list_entry(lst: list, key: str, value):
+    for entry in lst:
+        if entry.get(key) == value:
+            return entry
+    raise IndexError(f"Error trying to find entry in list: {e}")
+
 
 def create_db_tables():
     logger.info("Attempting to create database tables...")
