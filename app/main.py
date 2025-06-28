@@ -30,8 +30,7 @@ def find_list_entry(lst: list, key: str, value):
 def create_db_tables():
     logger.info("Attempting to create database tables...")
     try:
-        # TODO: use after engine is defined
-        # Base.metadata.create_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
         # TODO: reset DB and init with mock data
         logger.info("Database tables created or already exist.")
     except Exception as e:
