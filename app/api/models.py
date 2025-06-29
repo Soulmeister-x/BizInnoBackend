@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class Profile(BaseModel):
+class XUnternehmen(BaseModel):
     id: int
     name: Optional[str]
     beschreibung: Optional[str]
@@ -19,17 +19,17 @@ class Profile(BaseModel):
     aktualisiert_am: Optional[datetime] = datetime.now()
 
 
-class Ausschreibung(BaseModel):
+class XAusschreibung(BaseModel):
     id: int
-    titel: Optional[str]
-    beschreibung: Optional[str]
-    quelle_url: Optional[str]
-    veroeffentlichungsdatum: Optional[datetime]
-    bewerbungsfrist: Optional[datetime]
-    kategorien: Optional[str]
-    ort: Optional[str]
-    gescraped_am: Optional[datetime]
-    embedding: Optional[list]
+    titel: Optional[str] = None
+    beschreibung: Optional[str] = None
+    quelle_url: Optional[str] = None
+    veroeffentlichungsdatum: Optional[datetime] = None
+    bewerbungsfrist: Optional[datetime] = None
+    kategorien: Optional[str] = None
+    ort: Optional[str] = None
+    gescraped_am: Optional[datetime] = None
+    embedding: Optional[list] = None
 
 
 class ProposalStatus(str, enum.Enum):
@@ -38,7 +38,7 @@ class ProposalStatus(str, enum.Enum):
     REJECTED = "rejected"  # Unternehmen hat den Vorschlag abgelehnt
 
 
-class Vorschlag(BaseModel):
+class XVorschlag(BaseModel):
     id: int
     unternehmen_id: Optional[int]
     ausschreibung_id: Optional[int]
@@ -48,7 +48,7 @@ class Vorschlag(BaseModel):
     aktualisiert_am: Optional[datetime] = datetime.now()
 
 
-class Anfrage(BaseModel):
+class XAnfrage(BaseModel):
     id: int
     vorschlag_id: int
     generierter_text: str

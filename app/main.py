@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.db.mock_data import load_mock_data, get_user_profiles
 from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle, insert_into_database, query_by_id
 # from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
-from app.api.models import Profile, Ausschreibung, Vorschlag, Anfrage
+from app.api.models import XAnfrage, XAusschreibung, XUnternehmen, XVorschlag
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -168,22 +168,22 @@ def get_inbox(message_id: int):
 
 
 @app.post("/api/v1/tender", tags=["Ingestion", Tags.AUSSCHREIBUNG.name])
-def write_tender_to_database(data: Ausschreibung):
-    insert_into_database("tender", data)
+def write_tender_to_database(data: XAusschreibung):
+    insert_into_database(Tags.AUSSCHREIBUNG.value, data)
 
 
 @app.post("/api/v1/profile", tags=["Ingestion", Tags.UNTERNEHMEN.name])
-def write_profile_to_database(data: Profile):
+def write_profile_to_database(data: XUnternehmen):
     insert_into_database(Tags.UNTERNEHMEN.value, data)
 
 
 @app.post("/api/v1/anfrage", tags=["Ingestion", Tags.ANFRAGE.name])
-def write_anfrage_to_database(data: Anfrage):
+def write_anfrage_to_database(data: XAnfrage):
     insert_into_database("anfrage", data)
 
 
 @app.post("/api/v1/inbox", tags=["Ingestion", Tags.VORSCHLAG.name])
-def write_inbox_to_database(data: Anfrage):
+def write_inbox_to_database(data: XVorschlag):
     insert_into_database("inbox", data)
 
 
@@ -210,38 +210,3 @@ async def reset_default_profile():
     global user_profile
     user_profile, _, _ = load_mock_data()
     return {"message": "User profile was reset to default values."}
-
-
-@app.post("/api/v1/ingest/tenders", tags=["Ingestion", Tags.AUSSCHREIBUNG.name])
-async def ingest_tenders(data: dict):
-    logger.info("POST tender")
-    global tenders
-    # TODO: Logik für das Aktualisieren eines Angebots
-    try:
-        return {"message": "Received POST tender", "data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/v1/ingest/profile", tags=["Ingestion", Tags.UNTERNEHMEN.name])
-async def ingest_profile(data: Profile):
-    logger.info("POST profile")
-    global user_profile
-    try:
-        # user_profile.name = data.get("name", user_profile.name)
-        # user_profile.email = data.get("email", user_profile.email)
-        return {"message": "Profile updated successfully", "data": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/v1/ingest/inbox", tags=["Ingestion", Tags.VORSCHLAG.name])
-async def ingest_inbox_messages(data: dict):
-    logger.info("POST inbox")
-    global inbox_messages
-    # TODO: Logik für das Aktualisieren des Posteingangs
-    try:
-        data = await request.json()
-        inbox_messages.append()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
