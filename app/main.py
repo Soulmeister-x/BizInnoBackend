@@ -1,14 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-# from sqlalchemy.orm import Session
 import logging
 import enum
 
-# import settings and data models
 from app.core.config import settings
 from app.db.mock_data import load_mock_data, get_user_profiles
 from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle, insert_into_database, query_by_id
-# from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
 from app.api.models import XAnfrage, XAusschreibung, XUnternehmen, XVorschlag
 
 logging.basicConfig(level=logging.INFO)
@@ -32,11 +29,9 @@ def create_db_tables():
     logger.info("Attempting to create database tables...")
     try:
         initialize_database(base=Base)
-        # TODO: reset DB and init with mock data
         logger.info("Database tables created or already exist.")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
-        # TODO: add valid error handling and potential retry methods
         sys.exit(1)
 
 
@@ -62,25 +57,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# handle database sessions (provide and close)
-
 
 def get_db():
-    yield mock_data
-    """
+    # handle database sessions (provide and close)
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-    """
-
-# routers for API-endpoints in app/api/
-# app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
-# app.include_router(companies.router, prefix="/api/v1/companies", tags=["Companies"])
-# app.include_router(tenders.router, prefix="/api/v1/tenders", tags=["Tenders"])
-# app.include_router(ingestion.router, prefix="/api/v1/ingestion", tags=["Ingestion"])
-# TODO: replace basic routes with routers
 
 
 class Tags(enum.Enum):
@@ -88,6 +72,16 @@ class Tags(enum.Enum):
     UNTERNEHMEN = "unternehmen"
     ANFRAGE = "anfrage"
     VORSCHLAG = "vorschlag"
+
+
+router_ausschreibung = APIRouter(
+    prefix=f"/api/v1/{Tags.AUSSCHREIBUNG.value}", tags=[Tags.AUSSCHREIBUNG.name.capitalize()])
+router_unternehmen = APIRouter(
+    prefix=f"/api/v1/{Tags.UNTERNEHMEN.value}", tags=[Tags.UNTERNEHMEN.name.capitalize()])
+router_anfrage = APIRouter(
+    prefix=f"/api/v1/{Tags.ANFRAGE.value}", tags=[Tags.ANFRAGE.name.capitalize()])
+router_vorschlag = APIRouter(
+    prefix=f"/api/v1/{Tags.VORSCHLAG.value}", tags=[Tags.VORSCHLAG.name.capitalize()])
 
 
 @app.get("/api/v1/", tags=["Root"])
@@ -101,93 +95,76 @@ async def startup_event():
     # initialize database on app start
     logger.info("Application startup event triggered.")
     create_db_tables()
-    global user_profile
-    global inbox_messages
-    global tenders
     user_profile, inbox_messages, tenders = load_mock_data()
     logger.info("Database tables checked/created. Application ready.")
 
 
-@app.get("/api/v1/test")
-def test_db_request():
-    return {"message": test_db()}
-
-
-@app.get("/api/v1/ausschreibung")
-@app.get("/api/v1/ausschreibungen")
-@app.get("/api/v1/tenders", tags=[Tags.AUSSCHREIBUNG.name])
+@router_ausschreibung.get("/")
 def get_tenders():
     return query_alle("ausschreibung")
 
 
-@app.get("/api/v1/tenders/{tender_id}", tags=[Tags.AUSSCHREIBUNG.name])
+@router_ausschreibung.get("/{tender_id}")
 def get_tender_by_id(tender_id: int):
     return query_by_id("ausschreibung", tender_id)
 
 
-@app.get("/api/v1/company")
-@app.get("/api/v1/unternehmen")
-@app.get("/api/v1/profile", tags=[Tags.UNTERNEHMEN.name])
+@router_unternehmen.get("/")
 def get_profile():
     return query_alle("unternehmen")
 
 
-@app.get("/api/v1/profile/{unternehmen_id}", tags=[Tags.UNTERNEHMEN.name])
+@router_unternehmen.get("/{unternehmen_id}")
 def get_profile_by_id(unternehmen_id: int):
     return query_by_id("unternehmen", unternehmen_id)
 
 
-@app.get("/api/v1/messages")
-@app.get("/api/v1/vorschlag")
-@app.get("/api/v1/vorschlaege")
-@app.get("/api/v1/inbox", tags=[Tags.VORSCHLAG.name])
+@router_vorschlag.get("/")
 def get_inbox():
     return query_alle("vorschlag")
 
 
-@app.get("/api/v1/inbox/{inbox_id}", tags=[Tags.VORSCHLAG.name])
+@router_vorschlag.get("/{inbox_id}")
 def get_message_by_id(inbox_id: int):
     return query_by_id("vorschlag", inbox_id)
 
 
-@app.get("/api/v1/anfrage")
-@app.get("/api/v1/anfragen")
-@app.get("/api/v1/inquiry", tags=[Tags.ANFRAGE.name])
+@router_anfrage.get("/")
 def get_inquiries():
     return query_alle("anfrage")
 
 
-@app.get("/api/v1/anfrage/{anfrage_id}", tags=[Tags.ANFRAGE.name])
+@router_anfrage.get("/{anfrage_id}")
 def get_anfrage_by_id(anfrage_id: int):
     return query_by_id("anfrage", anfrage_id)
 
 
-@app.get("/api/v1/inbox/{message_id}", tags=[Tags.VORSCHLAG.name])
+@router_vorschlag.get("/{message_id}")
 def get_inbox(message_id: int):
     return find_list_entry(inbox_messages, "id", message_id)
 
 
-@app.post("/api/v1/tender", tags=["Ingestion", Tags.AUSSCHREIBUNG.name])
+@router_ausschreibung.post("/")
 def write_tender_to_database(data: XAusschreibung):
     insert_into_database(Tags.AUSSCHREIBUNG.value, data)
 
 
-@app.post("/api/v1/profile", tags=["Ingestion", Tags.UNTERNEHMEN.name])
+@router_unternehmen.post("/")
 def write_profile_to_database(data: XUnternehmen):
     insert_into_database(Tags.UNTERNEHMEN.value, data)
 
 
-@app.post("/api/v1/anfrage", tags=["Ingestion", Tags.ANFRAGE.name])
+@router_anfrage.post("/")
 def write_anfrage_to_database(data: XAnfrage):
     insert_into_database("anfrage", data)
 
 
-@app.post("/api/v1/inbox", tags=["Ingestion", Tags.VORSCHLAG.name])
+@router_vorschlag.post("/")
 def write_inbox_to_database(data: XVorschlag):
     insert_into_database("inbox", data)
 
 
-@app.post("/api/v1/profile/{profile_id}", tags=["Ingestion", Tags.UNTERNEHMEN.name])
+@router_unternehmen.post("/{profile_id}")
 def switch_profile(profile_id: int):
     global user_profile
     try:
@@ -198,15 +175,21 @@ def switch_profile(profile_id: int):
     return {"message": msg}
 
 
-@app.delete("/api/v1/profile", tags=[Tags.UNTERNEHMEN.name])
+@router_unternehmen.delete("/")
 def delete_profile():
     global user_profile
     user_profile = {}
     return {"message": "Profile deleted successfully"}
 
 
-@app.post("/api/v1/profile/default", tags=["Ingestion", Tags.UNTERNEHMEN.name])
+@router_unternehmen.post("/default")
 async def reset_default_profile():
     global user_profile
     user_profile, _, _ = load_mock_data()
     return {"message": "User profile was reset to default values."}
+
+
+app.include_router(router_anfrage)
+app.include_router(router_ausschreibung)
+app.include_router(router_unternehmen)
+app.include_router(router_vorschlag)
