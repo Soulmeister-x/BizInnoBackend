@@ -90,6 +90,19 @@ def read_root():
     return {"message": "Willkommen zur KMU Ausschreibungsplattform API v1"}
 
 
+@app.get("/api/v1/data")
+def get_all_data():
+    return {
+        "data": {
+            "ausschreibung": query_alle("ausschreibung"),
+            "unternehmen": query_alle("unternehmen"),
+            "anfrage": query_alle("anfrage"),
+            "vorschlag": query_alle("vorschlag"),
+        },
+        "message": "Received all data successfully."
+    }
+
+
 @app.on_event("startup")
 async def startup_event():
     # initialize database on app start
