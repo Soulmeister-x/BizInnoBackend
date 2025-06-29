@@ -165,13 +165,12 @@ def query_by_id(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vor
                 db_model = Vorschlag
             case _:
                 raise KeyError(f"invalid key: {db_name}")
-        entry = db.execute(
+        entry = db.scalars(
             select(db_model)
-            .where(db_model.id == bindparam("entry_id")),
-            {"entry_id": entry_id})
-        # transaction.commit()
+            .where(db_model.id == entry_id)
+        ).first()
 
-    return entry
+    return entry.to_dict()
 
 
 def insert_into_database(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vorschlag"], data):
