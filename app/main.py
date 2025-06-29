@@ -159,22 +159,22 @@ def get_inbox(message_id: int):
 
 @router_ausschreibung.post("/")
 def write_tender_to_database(data: XAusschreibung):
-    insert_into_database(Tags.AUSSCHREIBUNG.value, data)
+    return {"message": "inserted into database", "body": insert_into_database(Tags.AUSSCHREIBUNG.value, data)}
 
 
 @router_unternehmen.post("/")
 def write_profile_to_database(data: XUnternehmen):
-    insert_into_database(Tags.UNTERNEHMEN.value, data)
+    return {"message": "inserted into database", "body": insert_into_database(Tags.UNTERNEHMEN.value, data)}
 
 
 @router_anfrage.post("/")
 def write_anfrage_to_database(data: XAnfrage):
-    insert_into_database("anfrage", data)
+    return {"message": "inserted into database", "body": insert_into_database(Tags.ANFRAGE.value, data)}
 
 
 @router_vorschlag.post("/")
 def write_inbox_to_database(data: XVorschlag):
-    insert_into_database("inbox", data)
+    return {"message": "inserted into database", "body": insert_into_database(Tags.VORSCHLAG.value, data)}
 
 
 @router_unternehmen.post("/{profile_id}")
