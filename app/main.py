@@ -167,7 +167,27 @@ def get_inbox(message_id: int):
     return find_list_entry(inbox_messages, "id", message_id)
 
 
-@app.post("/api/v1/profile/{profile_id}", tags=["Profile"])
+@app.post("/api/v1/tender", tags=["Ingestion", Tags.AUSSCHREIBUNG.name])
+def write_tender_to_database(data: Ausschreibung):
+    insert_into_database("tender", data)
+
+
+@app.post("/api/v1/profile", tags=["Ingestion", Tags.UNTERNEHMEN.name])
+def write_profile_to_database(data: Profile):
+    insert_into_database(Tags.UNTERNEHMEN.value, data)
+
+
+@app.post("/api/v1/anfrage", tags=["Ingestion", Tags.ANFRAGE.name])
+def write_anfrage_to_database(data: Anfrage):
+    insert_into_database("anfrage", data)
+
+
+@app.post("/api/v1/inbox", tags=["Ingestion", Tags.VORSCHLAG.name])
+def write_inbox_to_database(data: Anfrage):
+    insert_into_database("inbox", data)
+
+
+@app.post("/api/v1/profile/{profile_id}", tags=["Ingestion", Tags.UNTERNEHMEN.name])
 def switch_profile(profile_id: int):
     global user_profile
     try:
