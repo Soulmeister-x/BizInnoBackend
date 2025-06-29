@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text, select
+from sqlalchemy import create_engine, text, select, insert, bindparam
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.exc import SQLAlchemyError
 import logging
@@ -151,12 +151,49 @@ def query_alle(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vors
     return ret
 
 
-def insert_into_database():
+def query_by_id(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vorschlag"], entry_id: int):
     db = SessionLocal()
     with db.begin() as transaction:
-        new_unternehmen = Unternehmen(
-            id=999, name="Peter Test", email="test@domain.org")
-        transaction.add(new_unternehmen)
+        match db_name:
+            case "ausschreibung":
+                db_model = Ausschreibung
+            case "unternehmen":
+                db_model = Unternehmen
+            case "anfrage":
+                db_model = Anfrage
+            case "vorschlag":
+                db_model = Vorschlag
+            case _:
+                raise KeyError(f"invalid key: {db_name}")
+        entry = db.execute(
+            select(db_model)
+            .where(db_model.id == bindparam("entry_id")),
+            {"entry_id": entry_id})
+        # transaction.commit()
+
+    return entry
+
+
+def insert_into_database(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vorschlag"], data):
+    db = SessionLocal()
+    with db.begin() as transaction:
+        match db_name:
+            case "ausschreibung":
+                db_model = Ausschreibung
+            case "unternehmen":
+                db_model = Unternehmen
+            case "anfrage":
+                db_model = Anfrage
+            case "vorschlag":
+                db_model = Vorschlag
+            case _:
+                raise KeyError(f"invalid key: {db_name}")
+        new_entry = db_model(data)
+
+        db.add(new_entry)
+        transaction.commit()
+
+    return new_entry
 
 
 def insert_embedding(embedding):

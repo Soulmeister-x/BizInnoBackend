@@ -6,7 +6,7 @@ import logging
 # import settings and data models
 from app.core.config import settings
 from app.db.mock_data import load_mock_data, get_user_profiles
-from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle
+from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle, insert_into_database, query_by_id
 # from app.api import auth, companies, tenders, ingestion # Importiert die Router-Objekte aus den Modulen
 from app.api.models import Profile, Ausschreibung, Vorschlag, Anfrage
 
@@ -114,7 +114,7 @@ def get_tenders():
 
 @app.get("/api/v1/tenders/{tender_id}", tags=["Tenders"])
 def get_tender_by_id(tender_id: int):
-    return find_list_entry(tenders, "id", tender_id)
+    return query_by_id("ausschreibung", tender_id)
 
 
 @app.get("/api/v1/company")
@@ -122,6 +122,11 @@ def get_tender_by_id(tender_id: int):
 @app.get("/api/v1/profile", tags=["Profile"])
 def get_profile():
     return query_alle("unternehmen")
+
+
+@app.get("/api/v1/profile/{unternehmen_id}", tags=["Profile"])
+def get_profile_by_id(unternehmen_id: int):
+    return query_by_id("unternehmen", unternehmen_id)
 
 
 @app.get("/api/v1/messages")
@@ -132,11 +137,21 @@ def get_inbox():
     return query_alle("vorschlag")
 
 
+@app.get("/api/v1/inbox/{inbox_id}", tags=["Inbox"])
+def get_message_by_id(inbox_id: int):
+    return query_by_id("vorschlag", inbox_id)
+
+
 @app.get("/api/v1/anfrage")
 @app.get("/api/v1/anfragen")
 @app.get("/api/v1/inquiry", tags=["Anfrage"])
 def get_inquiries():
     return query_alle("anfrage")
+
+
+@app.get("/api/v1/anfrage/{anfrage_id}", tags=["Anfrage"])
+def get_anfrage_by_id(anfrage_id: int):
+    return query_by_id("anfrage", anfrage_id)
 
 
 @app.get("/api/v1/inbox/{message_id}", tags=["Inbox"])
