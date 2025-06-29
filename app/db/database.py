@@ -189,7 +189,7 @@ def insert_into_database(db_name: Literal["ausschreibung", "unternehmen", "anfra
             case _:
                 raise KeyError(f"invalid key: {db_name}")
 
-        db.add(new_entry)
+        db.merge(new_entry)
         transaction.commit()
 
     return new_entry.to_dict()
