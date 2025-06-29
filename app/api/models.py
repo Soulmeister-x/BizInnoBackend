@@ -10,11 +10,11 @@ from typing import Optional
 
 class XUnternehmen(BaseModel):
     id: int
-    name: Optional[str]
-    beschreibung: Optional[str]
-    schluesselwoerter: Optional[str]
-    branche: Optional[str]
-    email: Optional[str]
+    name: Optional[str] = None
+    beschreibung: Optional[str] = None
+    schluesselwoerter: Optional[str] = None
+    branche: Optional[str] = None
+    email: Optional[str] = None
     erstellt_am: Optional[datetime] = datetime.now()
     aktualisiert_am: Optional[datetime] = datetime.now()
 
@@ -40,16 +40,17 @@ class ProposalStatus(str, enum.Enum):
 
 class XVorschlag(BaseModel):
     id: int
-    unternehmen_id: Optional[int]
-    ausschreibung_id: Optional[int]
-    matching_score: Optional[float]
+    unternehmen_id: Optional[int] = None
+    ausschreibung_id: Optional[int] = None
+    matching_score: Optional[float] = None
     status: ProposalStatus = ProposalStatus.PENDING
-    vorgeschlagen_am: Optional[datetime]
+    vorgeschlagen_am: Optional[datetime] = None
     aktualisiert_am: Optional[datetime] = datetime.now()
 
 
 class XAnfrage(BaseModel):
     id: int
     vorschlag_id: int
-    generierter_text: str
+    generierter_text: Optional[str] = None
     erstellt_am: Optional[datetime] = datetime.now()
+    status: ProposalStatus = ProposalStatus.PENDING
