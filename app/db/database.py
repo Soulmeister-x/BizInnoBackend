@@ -201,3 +201,29 @@ def insert_embedding(embedding):
         new_embedding = TextEmbedding(embedding=embedding)
         connection.add(new_embedding)
         connection.commit()
+
+
+def delete_from_database_by_id(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vorschlag"], entry_id: int):
+    db = SessionLocal()
+    with db.begin() as transaction:
+        match db_name:
+            case "ausschreibung":
+                db_model = Ausschreibung
+            case "unternehmen":
+                db_model = Unternehmen
+            case "anfrage":
+                db_model = Anfrage
+            case "vorschlag":
+                db_model = Vorschlag
+            case _:
+                raise KeyError(f"invalid key: {db_name}")
+        entry = db.scalars(
+            select(db_model)
+            .where(db_model.id == entry_id)
+        ).first()
+        if not entry:
+            raise
+        ret = entry.to_dict()
+        db.delete(entry)
+        transaction.commit()
+    return ret

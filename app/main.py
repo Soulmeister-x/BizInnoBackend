@@ -5,7 +5,7 @@ import enum
 
 from app.core.config import settings
 from app.db.mock_data import load_mock_data, get_user_profiles
-from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle, insert_into_database, query_by_id
+from app.db.database import SessionLocal, engine, Base, initialize_database, query_alle, insert_into_database, query_by_id, delete_from_database_by_id
 from app.api.models import XAnfrage, XAusschreibung, XUnternehmen, XVorschlag
 
 logging.basicConfig(level=logging.INFO)
@@ -175,11 +175,28 @@ def switch_profile(profile_id: int):
     return {"message": msg}
 
 
-@router_unternehmen.delete("/")
-def delete_profile():
-    global user_profile
-    user_profile = {}
-    return {"message": "Profile deleted successfully"}
+@router_unternehmen.delete("/{profile_id}")
+def delete_profile(profile_id: int):
+    entry = delete_from_database_by_id("unternehmen", profile_id)
+    return {"message": "Profile deleted successfully", "body": entry}
+
+
+@router_anfrage.delete("/{profile_id}")
+def delete_profile(profile_id: int):
+    entry = delete_from_database_by_id("anfrage", profile_id)
+    return {"message": "Profile deleted successfully", "body": entry}
+
+
+@router_ausschreibung.delete("/{profile_id}")
+def delete_profile(profile_id: int):
+    entry = delete_from_database_by_id("ausschreibung", profile_id)
+    return {"message": "Profile deleted successfully", "body": entry}
+
+
+@router_vorschlag.delete("/{profile_id}")
+def delete_profile(profile_id: int):
+    entry = delete_from_database_by_id("vorschlag", profile_id)
+    return {"message": "Profile deleted successfully", "body": entry}
 
 
 @router_unternehmen.post("/default")
