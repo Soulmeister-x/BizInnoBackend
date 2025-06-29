@@ -46,10 +46,11 @@ class Unternehmen(Base, SerializerMixin):
     description = Column(String)
     keywords = Column(String)
     branche = Column(String)
-    embedding = Column(Vector(N_DIM))
+    embedding = Column(Vector(N_DIM), nullable=True)
 
     erstellt_am = Column(DateTime, server_default=func.now())
-    aktualisiert_am = Column(DateTime, server_default=func.now())
+    aktualisiert_am = Column(
+        DateTime, server_default=func.now(), onupdate=func.now())
 
     vorschlaege = relationship("Vorschlag", back_populates="unternehmen")
 
@@ -65,7 +66,7 @@ class Ausschreibung(Base, SerializerMixin):
     kategorien = Column(String)
     ort = Column(String)
     gescraped_am = Column(DateTime)
-    embedding = Column(Vector(N_DIM))
+    embedding = Column(Vector(N_DIM), nullable=True)
 
     vorschlaege = relationship("Vorschlag", back_populates="ausschreibung")
 
@@ -94,8 +95,8 @@ class Vorschlag(Base, SerializerMixin):
 
     # Zeitpunkt des Vorschlags
     vorgeschlagen_am = Column(DateTime, server_default=func.now())
-    aktualisiert_am = Column(DateTime, onupdate=func.now(
-    ), server_default=func.now())  # Letzte Aktualisierung des Status
+    aktualisiert_am = Column(
+        DateTime, onupdate=func.now(), server_default=func.now())
 
     # Beziehungen zu anderen Modellen
     unternehmen = relationship("Unternehmen", back_populates="vorschlaege")

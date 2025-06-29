@@ -175,24 +175,24 @@ def query_by_id(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vor
 
 def insert_into_database(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vorschlag"], data):
     db = SessionLocal()
+    data = data.model_dump()
     with db.begin() as transaction:
         match db_name:
             case "ausschreibung":
-                db_model = Ausschreibung
+                new_entry = Ausschreibung(**data)
             case "unternehmen":
-                db_model = Unternehmen
+                new_entry = Unternehmen(**data)
             case "anfrage":
-                db_model = Anfrage
+                new_entry = Anfrage(**data)
             case "vorschlag":
-                db_model = Vorschlag
+                new_entry = Vorschlag(**data)
             case _:
                 raise KeyError(f"invalid key: {db_name}")
-        new_entry = db_model(data)
 
         db.add(new_entry)
         transaction.commit()
 
-    return new_entry
+    return new_entry.to_dict()
 
 
 def insert_embedding(embedding):
