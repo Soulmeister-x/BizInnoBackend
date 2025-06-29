@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 # from sqlalchemy.orm import Session
 import logging
+import enum
 
 # import settings and data models
 from app.core.config import settings
@@ -82,6 +83,13 @@ def get_db():
 # TODO: replace basic routes with routers
 
 
+class Tags(enum.Enum):
+    AUSSCHREIBUNG = "ausschreibung"
+    UNTERNEHMEN = "unternehmen"
+    ANFRAGE = "anfrage"
+    VORSCHLAG = "vorschlag"
+
+
 @app.get("/api/v1/", tags=["Root"])
 def read_root():
     # health check
@@ -107,24 +115,24 @@ def test_db_request():
 
 @app.get("/api/v1/ausschreibung")
 @app.get("/api/v1/ausschreibungen")
-@app.get("/api/v1/tenders", tags=["Tenders"])
+@app.get("/api/v1/tenders", tags=[Tags.AUSSCHREIBUNG.name])
 def get_tenders():
     return query_alle("ausschreibung")
 
 
-@app.get("/api/v1/tenders/{tender_id}", tags=["Tenders"])
+@app.get("/api/v1/tenders/{tender_id}", tags=[Tags.AUSSCHREIBUNG.name])
 def get_tender_by_id(tender_id: int):
     return query_by_id("ausschreibung", tender_id)
 
 
 @app.get("/api/v1/company")
 @app.get("/api/v1/unternehmen")
-@app.get("/api/v1/profile", tags=["Profile"])
+@app.get("/api/v1/profile", tags=[Tags.UNTERNEHMEN.name])
 def get_profile():
     return query_alle("unternehmen")
 
 
-@app.get("/api/v1/profile/{unternehmen_id}", tags=["Profile"])
+@app.get("/api/v1/profile/{unternehmen_id}", tags=[Tags.UNTERNEHMEN.name])
 def get_profile_by_id(unternehmen_id: int):
     return query_by_id("unternehmen", unternehmen_id)
 
@@ -132,29 +140,29 @@ def get_profile_by_id(unternehmen_id: int):
 @app.get("/api/v1/messages")
 @app.get("/api/v1/vorschlag")
 @app.get("/api/v1/vorschlaege")
-@app.get("/api/v1/inbox", tags=["Inbox"])
+@app.get("/api/v1/inbox", tags=[Tags.VORSCHLAG.name])
 def get_inbox():
     return query_alle("vorschlag")
 
 
-@app.get("/api/v1/inbox/{inbox_id}", tags=["Inbox"])
+@app.get("/api/v1/inbox/{inbox_id}", tags=[Tags.VORSCHLAG.name])
 def get_message_by_id(inbox_id: int):
     return query_by_id("vorschlag", inbox_id)
 
 
 @app.get("/api/v1/anfrage")
 @app.get("/api/v1/anfragen")
-@app.get("/api/v1/inquiry", tags=["Anfrage"])
+@app.get("/api/v1/inquiry", tags=[Tags.ANFRAGE.name])
 def get_inquiries():
     return query_alle("anfrage")
 
 
-@app.get("/api/v1/anfrage/{anfrage_id}", tags=["Anfrage"])
+@app.get("/api/v1/anfrage/{anfrage_id}", tags=[Tags.ANFRAGE.name])
 def get_anfrage_by_id(anfrage_id: int):
     return query_by_id("anfrage", anfrage_id)
 
 
-@app.get("/api/v1/inbox/{message_id}", tags=["Inbox"])
+@app.get("/api/v1/inbox/{message_id}", tags=[Tags.VORSCHLAG.name])
 def get_inbox(message_id: int):
     return find_list_entry(inbox_messages, "id", message_id)
 
@@ -170,21 +178,21 @@ def switch_profile(profile_id: int):
     return {"message": msg}
 
 
-@app.delete("/api/v1/profile", tags=["Profile"])
+@app.delete("/api/v1/profile", tags=[Tags.UNTERNEHMEN.name])
 def delete_profile():
     global user_profile
     user_profile = {}
     return {"message": "Profile deleted successfully"}
 
 
-@app.post("/api/v1/profile/default", tags=["Profile"])
+@app.post("/api/v1/profile/default", tags=["Ingestion", Tags.UNTERNEHMEN.name])
 async def reset_default_profile():
     global user_profile
     user_profile, _, _ = load_mock_data()
     return {"message": "User profile was reset to default values."}
 
 
-@app.post("/api/v1/ingest/tenders", tags=["Ingestion", "Tenders"])
+@app.post("/api/v1/ingest/tenders", tags=["Ingestion", Tags.AUSSCHREIBUNG.name])
 async def ingest_tenders(data: dict):
     logger.info("POST tender")
     global tenders
@@ -195,7 +203,7 @@ async def ingest_tenders(data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/v1/ingest/profile", tags=["Ingestion", "Profile"])
+@app.post("/api/v1/ingest/profile", tags=["Ingestion", Tags.UNTERNEHMEN.name])
 async def ingest_profile(data: Profile):
     logger.info("POST profile")
     global user_profile
@@ -207,7 +215,7 @@ async def ingest_profile(data: Profile):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/v1/ingest/inbox", tags=["Ingestion", "Inbox"])
+@app.post("/api/v1/ingest/inbox", tags=["Ingestion", Tags.VORSCHLAG.name])
 async def ingest_inbox_messages(data: dict):
     logger.info("POST inbox")
     global inbox_messages
