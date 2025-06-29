@@ -13,13 +13,23 @@ N_DIM = 1536
 PLACEHOLDER_EMBEDDING = [0.0] * N_DIM
 
 
+class SerializerMixin:
+    def __init__(self, data):
+        for field in self.__table__.columns:
+            if getattr(field, 'name'):
+                setattr(self, field.name, data.get(field.name))
+
+    def to_dict(self):
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
+
 class ProposalStatus(str, enum.Enum):
     PENDING = "pending"   # Vorschlag wurde gemacht, aber noch nicht bewertet
     ACCEPTED = "accepted"  # Unternehmen hat den Vorschlag angenommen
     REJECTED = "rejected"  # Unternehmen hat den Vorschlag abgelehnt
 
 
-class Unternehmen(Base):
+class Unternehmen(Base, SerializerMixin):
     """
     Unternehmen Model: Stellt einen Benutzer / ein Unternehmen dar.
     """
@@ -44,7 +54,7 @@ class Unternehmen(Base):
     vorschlaege = relationship("Vorschlag", back_populates="unternehmen")
 
 
-class Ausschreibung(Base):
+class Ausschreibung(Base, SerializerMixin):
     __tablename__ = "ausschreibung"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     titel = Column(String, index=True)
@@ -60,7 +70,7 @@ class Ausschreibung(Base):
     vorschlaege = relationship("Vorschlag", back_populates="ausschreibung")
 
 
-class Vorschlag(Base):
+class Vorschlag(Base, SerializerMixin):
     """
     Stellt einen Vorschlag einer Ausschreibung für ein Unternehmen dar.
     Enthält den Matching-Score und den Status der Bewertung durch das Unternehmen.
@@ -95,7 +105,7 @@ class Vorschlag(Base):
     anfragen = relationship("Anfrage", back_populates="vorschlag")
 
 
-class Anfrage(Base):
+class Anfrage(Base, SerializerMixin):
     """
     Stellt eine generierte Anfrage für eine angenommene Ausschreibung dar.
     """
