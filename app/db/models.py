@@ -90,8 +90,8 @@ class Vorschlag(Base, SerializerMixin):
     # Der berechnete Score für die Passung
     matching_score = Column(Float, nullable=False)
     # Status der Bewertung durch das Unternehmen
-    # status = Column(String,
-    #                default=ProposalStatus.PENDING, nullable=False)
+    status = Column(String,
+                    default=ProposalStatus.PENDING, nullable=False)
 
     # Zeitpunkt des Vorschlags
     vorgeschlagen_am = Column(DateTime, server_default=func.now())
@@ -121,6 +121,9 @@ class Anfrage(Base, SerializerMixin):
 
     # Der vollständige generierte Anfrage-Text
     generierter_text = Column(String, nullable=False)
+
+    status = Column(String,
+                    default=ProposalStatus.PENDING, nullable=False)
 
     # Zeitpunkt der Generierung
     erstellt_am = Column(DateTime, server_default=func.now())
