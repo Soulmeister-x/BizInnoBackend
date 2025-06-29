@@ -147,7 +147,7 @@ def query_alle(db_name: Literal["ausschreibung", "unternehmen", "anfrage", "vors
                     ]
 
         except Exception as e:
-            logger.error(f"Error while trying to query all 'unternehmen': {e}")
+            logger.error(f"Error while trying to query all {db_name}: {e}")
     return ret
 
 
